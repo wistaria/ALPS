@@ -364,12 +364,6 @@ if (NOT Boost_FOUND)
     endif()
 
   if (NOT ALPS_BUILD_SOURCE)
-    if(MSVC)
-      get_target_property(LIB_NAME ${ALPS_BOOST_LIBRARY_NAME} LOCATION)
-      add_custom_command(TARGET ${ALPS_BOOST_LIBRARY_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${LIB_NAME} ${PROJECT_BINARY_DIR}/bin)
-    endif(MSVC)
-
     if(NOT ALPS_PYTHON_WHEEL)
       install(TARGETS ${ALPS_BOOST_LIBRARY_NAME} COMPONENT libraries
               RUNTIME DESTINATION bin

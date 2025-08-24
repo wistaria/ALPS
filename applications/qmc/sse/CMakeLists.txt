@@ -17,7 +17,7 @@
 #   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #   DEALINGS IN THE SOFTWARE.
 
-if(LPSolve_FOUND AND NOT MSVC)
+if(LPSolve_FOUND)
   include_directories(${LPSolve_INCLUDE_DIR})
   add_executable(dirloop_sse_v1
                  SSE.Directed.cpp SSE.Initialization.cpp SSE.Measurements.cpp
@@ -33,7 +33,7 @@ if(LPSolve_FOUND AND NOT MSVC)
   else()
   install(TARGETS dirloop_sse_v1 RUNTIME DESTINATION bin COMPONENT applications)
   endif()
-endif(LPSolve_FOUND AND NOT MSVC)
+endif(LPSolve_FOUND)
 if (LPSolve_FOUND AND APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -idirafter /usr/include/malloc")
 endif(LPSolve_FOUND AND APPLE)

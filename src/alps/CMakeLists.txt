@@ -178,12 +178,6 @@ else(BUILD_SHARED_LIBS)
 endif(BUILD_SHARED_LIBS)
 
 
-if(MSVC)
-  get_target_property(LIB_NAME alps LOCATION)
-  add_custom_command(TARGET alps POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${LIB_NAME} ${PROJECT_BINARY_DIR}/bin)
-endif(MSVC)
-
 # Set soversion for library
 if(NOT APPLE AND NOT ALPS_PYTHON_WHEEL)
   set_target_properties(alps
