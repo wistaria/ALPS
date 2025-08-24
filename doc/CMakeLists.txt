@@ -17,7 +17,6 @@
 #   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #   DEALINGS IN THE SOFTWARE.
 
-if (NOT WIN32)
     find_package(Xsltproc REQUIRED)
     find_package(Doxygen REQUIRED)
     find_package(Java REQUIRED)
@@ -137,7 +136,6 @@ if (NOT WIN32)
     #else(FOP_FOUND)
       add_custom_target(docs ALL DEPENDS html/index.html)
     #endif(FOP_FOUND)
-endif (NOT WIN32)
 
 if (ALPS_BUILD_SOURCE)
 

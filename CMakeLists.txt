@@ -46,24 +46,11 @@ if (ALPS_USE_MACHINE)
   endif (EXISTS ${ALPS_USE_MACHINE})
 endif (ALPS_USE_MACHINE)
 
-if (NOT_BUILD_SHARED_LIBS)
-	option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-else (NOT_BUILD_SHARED_LIBS)
-	option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-endif (NOT_BUILD_SHARED_LIBS)
-if (NOT_ALPS_BUILD_PYTHON)
-	option(ALPS_BUILD_PYTHON "Build ALPS python extentions" OFF)
-else (NOT_ALPS_BUILD_PYTHON)
-	option(ALPS_BUILD_PYTHON "Build ALPS python extentions" ON)
-endif (NOT_ALPS_BUILD_PYTHON)
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(ALPS_BUILD_PYTHON "Build ALPS python extentions" ON)
 
-option(ALPS_MACOS106 "Build ALPS for MacOS X 10.6" OFF)
-
-option(ALPS_INSTALL_DEPRECATED "Install deprecated headers for ALPS" OFF)
-option(ALPS_BUILD_DEVELOPER_TOOLS "Build tools used by developers to maintain ALPS" OFF)
 option(ALPS_ENABLE_OPENMP "Enable OpenMP parallelization" OFF)
 option(ALPS_ENABLE_OPENMP_WORKER "Enable OpenMP worker support" OFF)
-option(ALPS_BUILD_ON_CRAY "Build ALPS for cray" OFF)
 option(ALPS_BUILD_SOURCE "Build a source distribution" OFF)
 option(LAPACK_64_BIT "Use 64-bit version of LAPACK" OFF)
 option(ALPS_BUILD_FORTRAN "Build the ALPS fortran applications and tools" OFF)
@@ -79,8 +66,6 @@ option(ALPS_NGS_OPENMPI_ULFM "Userlevel failure mitigation is available" OFF)
 option(ALPS_INSTALL_MPS_FRAMEWORK "Install headers and libs for the MPS framework" ON)
 option(ALPS_PYTHON_WHEEL "Build python wheel" OFF)
 option(ALPS_BUILD_LIBS_ONLY "Build only libraries" OFF)
-
-
 
 mark_as_advanced(BIND_FORTRAN_LOWERCASE)
 mark_as_advanced(ALPS_BUILD_TUTORIALS_PACKAGE)
@@ -112,25 +97,6 @@ set(ALPS_DEVELOPER_ID "" CACHE STRING "Developer id used to sign the packages")
 mark_as_advanced(ALPS_BOOST_LIBRARY_NAME)
 mark_as_advanced(PYTHON_EXTENSION_DIR)
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8 OR CMAKE_GENERATOR MATCHES Win64)
-    set (ALPS_64BIT ON)
-endif(CMAKE_SIZEOF_VOID_P EQUAL 8 OR CMAKE_GENERATOR MATCHES Win64)
-
-# maintenance building options
-# 
-# removed CMakeDetermineSystem since it is already called by
-# the makefile generator, and cmake 2.8.10 tries to cache the
-# configuration in /CMakeSystem.cmake
-
-#include (CMakeDetermineSystem)
-#include (CMakeDetermineFortranCompiler)
-#message (STATUS "Fortran compiler: ${CMAKE_Fortran_COMPILER}")
-#include (CMakeTestFortranCompiler)
-
-#if(NOT CMAKE_VERSION VERSION_LESS 3.0.0)
-#  cmake_policy(SET CMP0042 OLD)
-#endif(NOT CMAKE_VERSION VERSION_LESS 3.0.0)
-
 if(ALPS_PYTHON_WHEEL)
   set(ALPS_BUILD_APPLICATIONS ON)
   set(ALPS_ENABLE_MPI OFF)
@@ -155,12 +121,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# print extensive compiler information
-if(NOT WIN32)
-  execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version COMMAND head -n1 OUTPUT_VARIABLE ALPS_COMPILER_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message(STATUS "Compiler version: ${ALPS_COMPILER_VERSION}")
-endif(NOT WIN32)
-
 #set default compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive  -DBOOST_NO_AUTO_PTR -DBOOST_FILESYSTEM_NO_CXX20_ATOMIC_REF -DBOOST_AC_USE_PTHREADS -DBOOST_SP_USE_PTHREADS -DBOOST_TIMER_ENABLE_DEPRECATED" )
 
@@ -180,16 +140,6 @@ if(ALPS_BUILD_FORTRAN AND CMAKE_COMPILER_IS_GNUCC AND CMAKE_Fortran_COMPILER_VER
   SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fallow-argument-mismatch")
 endif(ALPS_BUILD_FORTRAN AND CMAKE_COMPILER_IS_GNUCC AND CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 9.99)
 
-IF(WIN32)
-ADD_DEFINITIONS(/bigobj)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /bigobj")
-SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /bigobj")
-SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /bigobj")
-ENDIF(WIN32)
-
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Type of build" FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
@@ -204,37 +154,18 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 # set default CMAKE_INSTALL_PREFIX
 ######################################################################
 
-if (ALPS_BUILD_PYTHON OR WIN32)
+if (ALPS_BUILD_PYTHON)
   find_package(PythonMod REQUIRED) # COMPONENTS Interpreter Development.Module )
-endif (ALPS_BUILD_PYTHON OR WIN32)
+endif (ALPS_BUILD_PYTHON)
 
 if (ALPS_BUILD_SOURCE)
   set (CMAKE_INSTALL_PREFIX .)
-else (ALPS_BUILD_SOURCE)
-  if(WIN32 AND NOT UNIX)
-      if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-        if (ALPS_64BIT)
-          set(CMAKE_INSTALL_PREFIX "$ENV{HOMEDRIVE}/Program Files/ALPS" CACHE PATH "ALPS install prefix" FORCE)
-        else (ALPS_64BIT)
-          set(CMAKE_INSTALL_PREFIX "$ENV{HOMEDRIVE}/Program Files (x86)/ALPS" CACHE PATH "ALPS install prefix" FORCE)
-        endif(ALPS_64BIT)
-        set(CMAKE_INSTALL_ALTERNATE_PREFIX "$ENV{HOMEDRIVE}/Program Files/ALPS" CACHE PATH "ALPS install prefix")
-      endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  else(WIN32 AND NOT UNIX)
-    if (ALPS_MACOS106)
-      set(CMAKE_OSX_DEPLOYMENT_TARGET "10.6")
-    endif (ALPS_MACOS106)
-    set(CPACK_OSX_PACKAGE_VERSION "10.5")
-      if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-#        set(CMAKE_INSTALL_PREFIX "/opt/alps" CACHE PATH "ALPS install prefix" FORCE)
-      endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  endif(WIN32 AND NOT UNIX)
 endif(ALPS_BUILD_SOURCE)
 
 ######################################################################
 # Version information
 ######################################################################
-set(ALPS_YEAR 2024)
+set(ALPS_YEAR 2025)
 set(ALPS_VERSION_MAJOR 2)
 set(ALPS_VERSION_MINOR 3)
 set(ALPS_VERSION_PATCH 3)
@@ -350,12 +281,10 @@ endif(LAPACK_FOUND)
 if(MSVC)
   file(COPY ${LAPACK_LIBRARY} ${BLAS_LIBRARY} DESTINATION ${PROJECT_BINARY_DIR}/lib)
 endif(MSVC)
-IF(NOT WIN32)
   IF (REQUIRE_PTHREAD)
     SET(LAPACK_LIBRARY "${LAPACK_LIBRARY};${PTHREAD_LIBRARY}")
     SET(LAPACK_LIBRARIES "${LAPACK_LIBRARIES};${PTHREAD_LIBRARY}")
   ENDIF (REQUIRE_PTHREAD)
-ENDIF(NOT WIN32)
 if(MAC_VECLIB)
   set(LAPACK_LDFLAGS "-framework ${BLAS_LAPACK_MAC_FRAMEWORK}")
 endif(MAC_VECLIB) 
@@ -434,11 +363,6 @@ if (ALPS_BUILD_PYTHON)
   find_package(PythonMod)
 endif (ALPS_BUILD_PYTHON)
 
-if(WIN32 AND NOT UNIX AND ALPS_BUILD_PYTHON)
-  find_package(PyInstaller)
-  include(UsePyInstaller)
-endif(WIN32 AND NOT UNIX AND ALPS_BUILD_PYTHON)
-
 IF (PYTHONLIBS_FOUND AND ALPS_BUILD_PYTHON)
   include_directories(${PYTHON_NUMPY_INCLUDE_DIR})
     MESSAGE (STATUS "Numpy include in ${PYTHON_NUMPY_INCLUDE_DIR}")
@@ -463,9 +387,6 @@ endif(Boost_ROOT_DIR)
 # XML Path
 set(ALPS_XML_PATH "lib" CACHE STRING "Directory to install ALPS XML directory in")
 set(ALPS_XML_DIR "${CMAKE_INSTALL_PREFIX}/${ALPS_XML_PATH}/xml")
-if (WIN32 AND NOT UNIX)
-  set(ALPS_XML_ALTERNATE_DIR "${CMAKE_INSTALL_ALTERNATE_PREFIX}/${ALPS_XML_PATH}/xml")
-endif (WIN32 AND NOT UNIX)
 
 message (STATUS "ALPS XML dir is ${ALPS_XML_DIR}")
 
@@ -520,54 +441,6 @@ else(APPLE AND (CMAKE_VERSION VERSION_LESS 2.8.12))
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
   set(CMAKE_MACOSX_RPATH 1)
 endif(APPLE AND (CMAKE_VERSION VERSION_LESS 2.8.12))
-
-######################################################################
-# install dependent libraries under Windows, from applications
-######################################################################
-
-if(WIN32 AND NOT UNIX AND NOT ALPS_BUILD_SOURCE)
-  # Lapack
-  if(LAPACK_LIBRARIES)
-    foreach(file ${LAPACK_LIBRARIES})
-      get_filename_component(LAPACK_PATH ${file} PATH)
-    endforeach(file ${LAPACK_LIBRARIES})
-    add_custom_target(liblapack ALL
-      COMMAND cmake -E make_directory ${PROJECT_BINARY_DIR}/lib
-      COMMAND cmake -E copy_if_different ${LAPACK_PATH}/lapack.lib ${PROJECT_BINARY_DIR}/lib
-      COMMAND cmake -E copy_if_different ${LAPACK_PATH}/blas.lib ${PROJECT_BINARY_DIR}/lib
-      #COMMAND cmake -E copy_if_different ${LAPACK_PATH}/f2c.lib ${PROJECT_BINARY_DIR}/lib
-    )
-    install(FILES ${PROJECT_BINARY_DIR}/lib/lapack.lib ${PROJECT_BINARY_DIR}/lib/blas.lib
-            DESTINATION lib COMPONENT dependentlibraries
-#            ${PROJECT_BINARY_DIR}/lib/f2c.lib
-    )
-  endif(LAPACK_LIBRARIES)
-  # SQLite
-  if(SQLite_LIBRARIES)
-    get_filename_component(SQLite_PATH ${SQLite_LIBRARIES} PATH)
-    get_filename_component(SQLite_BASE ${SQLite_PATH} PATH)
-    get_filename_component(SQLite_NAME ${SQLite_LIBRARIES} NAME_WE)
-    add_custom_target(libsqlite ALL
-      COMMAND cmake -E make_directory ${PROJECT_BINARY_DIR}/lib
-      COMMAND cmake -E copy_if_different ${SQLite_LIBRARIES} ${PROJECT_BINARY_DIR}/lib
-      COMMAND cmake -E copy_if_different ${SQLite_BASE}/bin/${SQLite_NAME}.dll ${PROJECT_BINARY_DIR}/bin
-    )
-    install(FILES ${PROJECT_BINARY_DIR}/lib/${SQLite_NAME}.lib DESTINATION lib COMPONENT dependentlibraries)
-    install(FILES ${PROJECT_BINARY_DIR}/bin/${SQLite_NAME}.dll DESTINATION bin COMPONENT dependentlibraries)
-  endif(SQLite_LIBRARIES)
-  # alps & boost
-  # add_custom_target(libalps ALL
-    # COMMAND cmake -E make_directory ${PROJECT_BINARY_DIR}/bin
-    # COMMAND cmake -E make_directory ${PROJECT_BINARY_DIR}/lib
-    # COMMAND cmake -E make_directory ${PROJECT_BINARY_DIR}/lib/xml
-    # COMMAND cmake -E copy_if_different ${CMAKE_INSTALL_PREFIX}/bin/archive.exe ${PROJECT_BINARY_DIR}/bin
-    # COMMAND cmake -E copy_if_different ${CMAKE_INSTALL_PREFIX}/bin/parameter2xml.exe ${PROJECT_BINARY_DIR}/bin
-    # COMMAND cmake -E copy_if_different ${CMAKE_INSTALL_PREFIX}/bin/parameter2hdf5.exe ${PROJECT_BINARY_DIR}/bin
-    # COMMAND cmake -E copy_if_different ${CMAKE_INSTALL_PREFIX}/bin/ising.exe ${PROJECT_BINARY_DIR}/bin
-    # COMMAND cmake -E copy_directory ${CMAKE_INSTALL_PREFIX}/lib/xml ${PROJECT_BINARY_DIR}/lib/xml    
-  # )
-
-endif(WIN32 AND NOT UNIX AND NOT ALPS_BUILD_SOURCE)
 
 ######################################################################
 # setting up ALPSConfig.cmake and include.mk
@@ -710,11 +583,6 @@ else (ALPS_BUILD_SOURCE)
             FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.ipp"
             PATTERN ".svn" EXCLUDE PATTERN "CVS" EXCLUDE)
     install(FILES ${PROJECT_BINARY_DIR}/src/alps/config.h ${PROJECT_BINARY_DIR}/src/alps/version.h DESTINATION ${ALPS_HEADER_DIR}/alps COMPONENT headers)
-    if (ALPS_INSTALL_DEPRECATED)
-      install(DIRECTORY legacy/alps COMPONENT deprecated DESTINATION ${ALPS_HEADER_DIR}
-              FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp" 
-              PATTERN ".svn" EXCLUDE PATTERN "CVS" EXCLUDE)
-    endif (ALPS_INSTALL_DEPRECATED)
 
     if(ALPS_PACKAGE_LIBRARIES)
        install(DIRECTORY ${Boost_ROOT_DIR}/boost DESTINATION ${ALPS_HEADER_DIR} COMPONENT dependentheaders
@@ -828,22 +696,11 @@ if (ALPS_INCLUDE_TUTORIALS AND NOT ALPS_PYTHON_WHEEL AND NOT ALPS_BUILD_LIBS_ONL
   add_subdirectory(tutorials)
 endif (ALPS_INCLUDE_TUTORIALS AND NOT ALPS_PYTHON_WHEEL AND NOT ALPS_BUILD_LIBS_ONLY)
 
-######################################################################
-# developer tools
-######################################################################
-
-if (ALPS_BUILD_DEVELOPER_TOOLS AND NOT ALPS_BUILD_SOURCE)
-  add_subdirectory(script)
-endif (ALPS_BUILD_DEVELOPER_TOOLS AND NOT ALPS_BUILD_SOURCE)
-
 ##########################################################################
 # Binary packages                                                        #
 ##########################################################################
 
-if (NOT WIN32)
-  set (CPACK_SET_DESTDIR ON)
-endif (NOT WIN32)
-
+set (CPACK_SET_DESTDIR ON)
 
 if (NOT ALPS_BUILD_TUTORIALS_PACKAGE)
  set(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "ALPS and Boost libraries")
@@ -994,25 +851,6 @@ set(CPACK_RPM_PACKAGE_GROUP "${CPACK_PACKAGE_VENDOR}")
 # set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "")
 # set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "")
 # set(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "")
-
-if(WIN32 AND NOT UNIX)
-  # There is a bug in NSI that does not handle full unix paths properly. Make
-  # sure there is at least one set of four (4) backlasshes.
-  # NOTE: No ALPS icon yet
-#  set(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/tools/build/CMake\\\\InstallIcon.bmp")
-#  set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
-#  set(CPACK_NSIS_DISPLAY_NAME "ALPS ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_SUBMINOR}${CPACK_PACKAGE_VERSION_PATCH}")
-  set(CPACK_NSIS_DISPLAY_NAME "ALPS ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_SUBMINOR}")
-  set(CPACK_NSIS_CONTACT "wistaria@comp-phys.org")
-  set(CPACK_NSIS_HELP_LINK "http://alps.comp-phys.org")
-  set(CPACK_NSIS_URL_INFO_ABOUT "http://alps.comp-phys.org")
-  if (ALPS_64BIT)
-    set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
-  endif (ALPS_64BIT)
-  set(CPACK_NSIS_MODIFY_PATH ON)
-  
-  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${CPACK_NSIS_DISPLAY_NAME}")
-endif(WIN32 AND NOT UNIX)
 
 #set(CPACK_STRIP_FILES ON)
 include(CPack)

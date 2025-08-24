@@ -61,12 +61,9 @@ if (NOT ALPS_BUILD_SOURCE)
   # Script to setup ALPS_HOME, PATH, LD_LIBRARY_PATH, PYTHONPATH
   #
 
-  if(UNIX AND NOT WIN32)
-    configure_file(alpsvars.sh.in ${CMAKE_CURRENT_BINARY_DIR}/alpsvars.sh @ONLY)
-    configure_file(alpsvars.csh.in ${CMAKE_CURRENT_BINARY_DIR}/alpsvars.csh @ONLY)
-    install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/alpsvars.sh ${CMAKE_CURRENT_BINARY_DIR}/alpsvars.csh DESTINATION bin COMPONENT tools)
-  endif(UNIX AND NOT WIN32)
-
+  configure_file(alpsvars.sh.in ${CMAKE_CURRENT_BINARY_DIR}/alpsvars.sh @ONLY)
+  configure_file(alpsvars.csh.in ${CMAKE_CURRENT_BINARY_DIR}/alpsvars.csh @ONLY)
+  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/alpsvars.sh ${CMAKE_CURRENT_BINARY_DIR}/alpsvars.csh DESTINATION bin COMPONENT tools)
 
   set (TOOLS parameter2xml parameter2hdf5 convert2xml compactrun lattice2xml pevaluate pconfig
              poutput printgraph txt2archive xml2archive snap2vtk)
@@ -98,35 +95,20 @@ endif(SQLite_FOUND)
 # legacy shell scripts that stay around for backwards compatibility until the new solutions are there
 #
 
-  if(UNIX AND NOT WIN32)
-    install(PROGRAMS archivecat convert2html convert2text extractgp extracthtml 
-            extractmpl  extracttext extractxmgr plot2gp plot2html plot2mpl 
-            plot2text plot2xmgr use_local_stylesheet xslttransform 
-            DESTINATION bin COMPONENT tools)
-  else(UNIX AND NOT WIN32)
-    install(PROGRAMS msxsl.exe DESTINATION bin COMPONENT tools)
-  endif(UNIX AND NOT WIN32)
+  install(PROGRAMS archivecat convert2html convert2text extractgp extracthtml 
+          extractmpl  extracttext extractxmgr plot2gp plot2html plot2mpl 
+          plot2text plot2xmgr use_local_stylesheet xslttransform 
+          DESTINATION bin COMPONENT tools)
 
 #
 # lattice-preview and helper program
 #
 
   configure_file(config.py.in ${CMAKE_CURRENT_BINARY_DIR}/config.py)
-  if(WIN32 AND NOT UNIX AND ALPS_BUILD_PYTHON)
-    # in the function add_pi_executable is not present ...
-    option(ALPS_HAS_CMAKE_PI_MACROS "Ignore the PI macros if they are not present" ON)
-    mark_as_advanced(ALPS_HAS_CMAKE_PI_MACROS)
-    if (ALPS_HAS_CMAKE_PI_MACROS)
-      add_pi_executable(lattice-preview preview.py ${CMAKE_CURRENT_BINARY_DIR}/config.py license.py)
-      file(GLOB pi_generated_files ${CMAKE_CURRENT_BINARY_DIR}/lattice-preview/*)
-      install(FILES ${pi_generated_files} DESTINATION bin COMPONENT tools)
-    endif (ALPS_HAS_CMAKE_PI_MACROS)
-  else(WIN32 AND NOT UNIX)
-    configure_file(lattice-preview.in ${CMAKE_CURRENT_BINARY_DIR}/lattice-preview)
-    install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/lattice-preview DESTINATION bin COMPONENT tools)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/config.py preview.py license.py
-      DESTINATION lib/python/alps COMPONENT tools)
-  endif(WIN32 AND NOT UNIX AND ALPS_BUILD_PYTHON)
+  configure_file(lattice-preview.in ${CMAKE_CURRENT_BINARY_DIR}/lattice-preview)
+  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/lattice-preview DESTINATION bin COMPONENT tools)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/config.py preview.py license.py
+    DESTINATION lib/python/alps COMPONENT tools)
 
   #
   # Analytical continuation with MaxEnt
@@ -146,7 +128,6 @@ endif(SQLite_FOUND)
   
   set(ALPSPYTHON_CONFIGURED FALSE)
   if(PYTHON_INTERPRETER AND NOT ALPS_PACKAGE_LIBRARIES)
-    if (NOT WIN32)
       set(PYTHONPATH "${ALPS_PYTHON_LIB_DEST_ROOT}")
       set(PYTHONBIN "${PYTHON_INTERPRETER}")
       string(CONFIGURE [[
@@ -158,12 +139,6 @@ endif(SQLite_FOUND)
         configure_file(${PROJECT_SOURCE_DIR}/tool/alpspython.in ${CMAKE_INSTALL_PREFIX}/bin/alpspython )
         ]] install_script @ONLY)
       install(CODE ${install_script})
-    else (NOT WIN32)
-      set(PYTHONPATH "%HOMEDRIVE%\\Program Files\\ALPS\\lib;%HOMEDRIVE%\\Program Files (x86)\\ALPS\\lib")
-      set(PYTHONBIN "python")
-      configure_file(alpspython.bat.in ${PROJECT_BINARY_DIR}/tool/alpspython.bat)
-      install(PROGRAMS ${PROJECT_BINARY_DIR}/tool/alpspython.bat DESTINATION bin COMPONENT tools)
-    endif (NOT WIN32)
     set(ALPSPYTHON_CONFIGURED TRUE)
   endif(PYTHON_INTERPRETER AND NOT ALPS_PACKAGE_LIBRARIES)
 

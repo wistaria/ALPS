@@ -53,9 +53,9 @@ if(BUILD_BOOST_CHRONO)
     endif(EXISTS ${DIRECTORY}/${S})
   endforeach(S)
     #boost librt linking
-    if(NOT WIN32 AND NOT APPLE)
+    if(NOT APPLE)
         set(BOOST_LINK_LIBS ${BOOST_LINK_LIBS} rt)
-    endif(NOT WIN32 AND NOT APPLE)
+    endif(NOT APPLE)
 endif(BUILD_BOOST_CHRONO)
 
 #Boost.Timer
@@ -216,9 +216,7 @@ endif(BUILD_BOOST_SYSTEM)
 
 # Boost.MPI
 if(BUILD_BOOST_MPI)
-  #IF(NOT WIN32)
   set(BOOST_LINK_LIBS ${BOOST_LINK_LIBS} ${MPI_LIBRARIES})
-  #ENDIF(NOT WIN32)
   set(DIRECTORY "${Boost_ROOT_DIR}/libs/mpi/src")
   set(SOURCES broadcast.cpp communicator.cpp computation_tree.cpp
       content_oarchive.cpp environment.cpp error_string.cpp exception.cpp graph_communicator.cpp
@@ -236,15 +234,9 @@ endif(BUILD_BOOST_MPI)
 
 # Boost.Thread
 if(BUILD_BOOST_THREAD)
-  if (NOT WIN32)
-    set(BOOST_LINK_LIBS ${BOOST_LINK_LIBS} ${PTHREAD_LIBRARY})
-  endif (NOT WIN32)
+  set(BOOST_LINK_LIBS ${BOOST_LINK_LIBS} ${PTHREAD_LIBRARY})
   set(DIRECTORY "${Boost_ROOT_DIR}/libs/thread/src")
-  if (WIN32)
-    set(SOURCES future.cpp win32/thread.cpp win32/tss_dll.cpp win32/tss_pe.cpp)
-  else (WIN32)
-    set(SOURCES future.cpp pthread/once.cpp pthread/thread.cpp)
-  endif(WIN32)
+  set(SOURCES future.cpp pthread/once.cpp pthread/thread.cpp)
   foreach(S ${SOURCES})
     if(EXISTS ${DIRECTORY}/${S})
       set(BOOST_SOURCES ${BOOST_SOURCES} ${DIRECTORY}/${S})
@@ -281,9 +273,6 @@ if (BUILD_BOOST_MPI AND BUILD_BOOST_PYTHON AND NOT ALPS_BUILD_SOURCE AND Boost_R
     python_add_module(mpi_c ${BOOST_MPI_PYTHON_SOURCES})
     if(BUILD_SHARED_LIBS)
       set_target_properties(mpi_c PROPERTIES COMPILE_DEFINITIONS "${ALPS_SHARED_CPPFLAGS}")
-    if(WIN32 AND NOT UNIX)
-      set_target_properties(mpi_c PROPERTIES SUFFIX ".pyd")
-    endif(WIN32 AND NOT UNIX)
     endif (BUILD_SHARED_LIBS)
 
     set_target_properties(mpi_c PROPERTIES PREFIX "")
@@ -373,16 +362,6 @@ if (NOT Boost_FOUND)
         message(WARNING "\nThe Boost version you are trying to use has a bug when used with the Intel compiler. Please apply the following patch to fix it:\n${PATCH_EXECUTABLE} -d ${Boost_ROOT_DIR} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/serialization_intel.patch \n")
       endif(NOT PATCH_APPLIED)
     endif()
-
-  if(WIN32)
-    list(APPEND defs "BOOST_ATOMIC_SOURCE=1")
-    if(BUILD_SHARED_LIBS)
-     list(APPEND defs "BOOST_THREAD_BUILD_DLL=1")
-    else(BUILD_SHARED_LIBS)
-      list(APPEND defs "BOOST_THREAD_BUILD_LIB=1")
-    endif(BUILD_SHARED_LIBS)
-    set_target_properties(boost PROPERTIES COMPILE_DEFINITIONS "${defs}")
-  endif(WIN32)
 
   if (NOT ALPS_BUILD_SOURCE)
     if(MSVC)
