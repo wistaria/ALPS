@@ -89,7 +89,6 @@ set(ALPS_SOURCES
     set(ALPS_SOURCES ${ALPS_SOURCES} ngs/accumulator/accumulator.cpp)
   endif (ALPS_NGS_USE_NEW_ALEA)
 
-if (NOT ALPS_FOR_VISTRAILS)
   set(ALPS_SOURCES ${ALPS_SOURCES}
       # parapack
       parapack/clone.C parapack/clone_info.C parapack/filelock.C parapack/logger.C
@@ -100,7 +99,6 @@ if (NOT ALPS_FOR_VISTRAILS)
       # ngs-parapack
       ngs/lib/clone.cpp ngs/lib/clone_info.cpp ngs/lib/job.cpp ngs/lib/parapack.cpp ngs/lib/worker_factory.cpp
   )
-endif(NOT ALPS_FOR_VISTRAILS)
 
 if(ALPS_HAVE_PYTHON)
   if(ALPS_PYTHON_WHEEL)
@@ -210,42 +208,16 @@ endif()
 # install
 #######################################################################
 if(NOT ALPS_PYTHON_WHEEL)
-if (NOT ALPS_FOR_VISTRAILS)
   install(TARGETS alps COMPONENT libraries
           ARCHIVE DESTINATION lib
           LIBRARY DESTINATION lib
           RUNTIME DESTINATION bin)
 
-endif (NOT ALPS_FOR_VISTRAILS)
-
-if (ALPS_FOR_VISTRAILS)
-  if (APPLE)
-   SET_TARGET_PROPERTIES(alps
-    PROPERTIES BUILD_WITH_INSTALL_RPATH ON
-     INSTALL_NAME_DIR "@executable_path/../Frameworks"
-    )
-  endif(APPLE)
-  message (STATUS "Putting into ${VISTRAILS_DYLIB_DIR}")
-  install(TARGETS alps  COMPONENT vistrails
-          ARCHIVE DESTINATION ${VISTRAILS_DYLIB_DIR}
-          LIBRARY DESTINATION ${VISTRAILS_DYLIB_DIR}
-          RUNTIME DESTINATION ${VISTRAILS_DYLIB_DIR})
-endif (ALPS_FOR_VISTRAILS)
-
-
 if(ALPS_BUILD_FORTRAN)
-  if(NOT ALPS_FOR_VISTRAILS)
     install(TARGETS alps_fortran COMPONENT libraries
             ARCHIVE DESTINATION lib
             LIBRARY DESTINATION lib
             RUNTIME DESTINATION bin)
-  endif(NOT ALPS_FOR_VISTRAILS)
-  if(ALPS_INSTALL_VISTRAILS_PACKAGES)
-    install(TARGETS alps_fortran COMPONENT vistrails
-            ARCHIVE DESTINATION ${VISTRAILS_DYLIB_DIR}
-            LIBRARY DESTINATION ${VISTRAILS_DYLIB_DIR}
-            RUNTIME DESTINATION ${VISTRAILS_DYLIB_DIR})
-  endif(ALPS_INSTALL_VISTRAILS_PACKAGES)
 endif(ALPS_BUILD_FORTRAN)
 else ()
   install(TARGETS alps_python COMPONENT libraries

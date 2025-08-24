@@ -22,12 +22,6 @@
 # basic C++ tools
 # 
 
-if (ALPS_FOR_VISTRAILS)
-  if (WIN32 AND NOT UNIX)
-    install(PROGRAMS msxsl.exe DESTINATION ${VISTRAILS_APP_NAME} COMPONENT vistrails)
-  endif(WIN32 AND NOT UNIX)
-else(ALPS_FOR_VISTRAILS)
-
 #
 # quickbook
 # 
@@ -173,28 +167,4 @@ endif(SQLite_FOUND)
     set(ALPSPYTHON_CONFIGURED TRUE)
   endif(PYTHON_INTERPRETER AND NOT ALPS_PACKAGE_LIBRARIES)
 
-  if(VISTRAILS_FOUND)
-    if (APPLE)
-      set(PYTHONHOME "${VISTRAILS_APP_DIR}/${VISTRAILS_APP_NAME}/${VISTRAILS_PYTHONPATH_DIR}")
-      set(PYTHONPATH "${VISTRAILS_APP_DIR}/${VISTRAILS_APP_NAME}/${VISTRAILS_PYTHONPATH_DIR}")
-      set(PYTHONBIN "${VISTRAILS_APP_DIR}/${VISTRAILS_APP_NAME}/${VISTRAILS_PYTHON_INTERPRETER}")
-      set(PYSTARTUP "${VISTRAILS_APP_DIR}/${VISTRAILS_PYTHON_EXTENSION_DIR}/pyalps/mpl_setup_macosx.py")
-      configure_file(vispython.in ${PROJECT_BINARY_DIR}/tool/vispython)
-      install(PROGRAMS ${PROJECT_BINARY_DIR}/tool/vispython DESTINATION bin COMPONENT tools)
-      if(NOT ALPSPYTHON_CONFIGURED)
-        # If Vistrails is present, we can still deliver alpspython pointing to Vistrails python
-        configure_file(vispython.in ${PROJECT_BINARY_DIR}/tool/alpspython)
-        install(PROGRAMS ${PROJECT_BINARY_DIR}/tool/alpspython DESTINATION bin COMPONENT tools)
-        set(ALPSPYTHON_CONFIGURED TRUE)
-      endif(NOT ALPSPYTHON_CONFIGURED)
-    endif(APPLE)
-    if (WIN32)
-      configure_file(vispython.bat.in ${PROJECT_BINARY_DIR}/tool/vispython.bat)
-      install(PROGRAMS ${PROJECT_BINARY_DIR}/tool/vispython.bat DESTINATION bin COMPONENT tools)
-    endif(WIN32)
-  endif(VISTRAILS_FOUND)
-
 endif (NOT ALPS_BUILD_SOURCE)
-
-
-endif(ALPS_FOR_VISTRAILS)
