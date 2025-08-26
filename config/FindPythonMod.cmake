@@ -229,6 +229,9 @@ IF (PYTHON_FOUND)
                   PYTHON_EXTRA_LIBS)
       endif()
       endif()
+      # workaround for Python 3.11 and 3.12
+      # see https://github.com/python/cpython/issues/116043
+      string(REPLACE "Modules/_hacl/libHacl_Hash_SHA2.a" "" PYTHON_EXTRA_LIBS "${PYTHON_EXTRA_LIBS}")
       MESSAGE(STATUS "PYTHON_EXTRA_LIBS =${PYTHON_EXTRA_LIBS}" )
       mark_as_advanced(PYTHON_EXTRA_LIBS)
 
