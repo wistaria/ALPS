@@ -122,7 +122,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 #set default compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive  -DBOOST_NO_AUTO_PTR -DBOOST_FILESYSTEM_NO_CXX20_ATOMIC_REF -DBOOST_TIMER_ENABLE_DEPRECATED" )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive  -DBOOST_NO_AUTO_PTR -DBOOST_FILESYSTEM_NO_CXX20_ATOMIC_REF -DBOOST_TIMER_ENABLE_DEPRECATED -DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 
 # set convenient warning flags for clang
 STRING(REGEX MATCH "clang" IS_CLANG "${ALPS_COMPILER_VERSION}")
@@ -281,48 +281,15 @@ find_package(SQLite)
 # LPSolve
 find_package(LPSolve)
 
-# Zlib
-find_package(ZLIB)
-if(ZLIB_FOUND)
-  include_directories(${ZLIB_INCLUDE_DIR})
-  link_libraries(${ZLIB_LIBRARIES})
-endif(ZLIB_FOUND)
-
-
-# SZip
-find_package(SZIP)
-if(SZIP_FOUND)
-  include_directories(${SZIP_INCLUDE_DIR})
-  link_libraries(${SZIP_LIBRARIES})
-endif(SZIP_FOUND)
-
 # HDF5
 if(ALPS_BUILD_FORTRAN)
-  find_package(HDF5 COMPONENTS C HL Fortran)
+  find_package(HDF5 REQUIRED COMPONENTS C HL Fortran)
 else()
-  find_package(HDF5 COMPONENTS C HL)
+  find_package(HDF5 REQUIRED COMPONENTS C HL)
 endif()
-IF(HDF5_FOUND)
-  SET(HAVE_LIBHDF5 1)  
-  INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIR})
-  add_definitions(${HDF5_DEFINTIONS})
-  SET(ALPS_HAVE_HDF5 1)
-ELSE(HDF5_FOUND)
-  MESSAGE(FATAL_ERROR "Require hdf5 1.8.2 or higher. Set HDF5_HOME")
-ENDIF(HDF5_FOUND)
-
-
-IF(HDF5_IS_PARALLEL)
-  SET(ALPS_HAVE_HDF5_PARALLEL 1)
-  MESSAGE(WARNING "parallel(MPI) hdf5 is detected. We will compile but ALPS does not use parallel HDF5. The standard version is preferred.")
-  IF(NOT MPI_FOUND)
-    MESSAGE(FATAL_ERROR "parallel(MPI) hdf5 needs MPI. Enable MPI or install serial HDF5 libraries.")
-  ENDIF(NOT MPI_FOUND)
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(HDF5_IS_PARALLEL)
+set(ALPS_HAVE_HDF5 True)
 
 # python
-
 
 if (ALPS_BUILD_PYTHON)
   set(PYTHON_SCRIPTDIR "${CMAKE_INSTALL_PREFIX}/lib/python")
@@ -433,9 +400,6 @@ endif(MPI_DEFINITIONS)
 if(LAPACK_DEFINITIONS)
   set(ALPS_EXTRA_DEFINITIONS "${ALPS_EXTRA_DEFINITIONS} ${LAPACK_DEFINITIONS}")
 endif(LAPACK_DEFINITIONS)
-if(HDF5_DEFINITIONS)
-  set(ALPS_EXTRA_DEFINITIONS "${ALPS_EXTRA_DEFINITIONS} ${HDF5_DEFINITIONS}")
-endif(HDF5_DEFINITIONS)
 
 if(MPI_INCLUDE_DIR)
   list(APPEND ALPS_EXTRA_INCLUDE_DIRS ${MPI_INCLUDE_DIR})
@@ -447,9 +411,6 @@ endif(MPI_INCLUDE_DIR)
 #if(SQLite_INCLUDE_DIR)
 #  list(APPEND ALPS_EXTRA_INCLUDE_DIRS ${SQLite_INCLUDE_DIR})
 #endif(SQLite_INCLUDE_DIR)
-if(HDF5_INCLUDE_DIR)
-  list(APPEND ALPS_EXTRA_INCLUDE_DIRS ${HDF5_INCLUDE_DIR})
-endif(HDF5_INCLUDE_DIR)
 if(PYTHON_INCLUDE_DIRS)
   list(APPEND ALPS_EXTRA_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
 endif(PYTHON_INCLUDE_DIRS)
@@ -487,23 +448,9 @@ endif(LAPACK_LIBRARIES)
 #if(SQLite_LIBRARIES)
 #  list(APPEND ALPS_EXTRA_LIBRARIES ${SQLite_LIBRARIES})
 #endif(SQLite_LIBRARIES)
-if(HDF5_LIBRARIES)
-  list(APPEND ALPS_EXTRA_LIBRARIES ${HDF5_LIBRARIES})
-endif(HDF5_LIBRARIES)
 if(PYTHON_LIBRARY)
   list(APPEND ALPS_EXTRA_LIBRARIES ${PYTHON_LIBRARY})
 endif(PYTHON_LIBRARY)
-
-set (HDF5_LIBS "")
-foreach (l ${HDF5_LIBRARIES})
-  set (HDF5_LIBS "${HDF5_LIBS} ${l}")
-  if (${l} STREQUAL "debug")
-    set (HDF5_LIBS "")
-  endif()
-  if (${l} STREQUAL "optimized")
-    set (HDF5_LIBS "")
-  endif()
-endforeach(l)
 
 set (LAPACK_LIBS "")
 foreach (l ${LAPACK_LIBRARY})
@@ -514,9 +461,6 @@ endforeach(l)
 endif(PYTHON_FOUND)
 configure_file(config/ALPSConfig.cmake.in ${PROJECT_BINARY_DIR}/config/ALPSConfig.cmake @ONLY)
 configure_file(config/include.mk.in ${PROJECT_BINARY_DIR}/config/include.mk)
-
-set (HDF5_LIBRARIES ${HDF5_LIBRARIES_SAVE})
-
 
 # installation
 ######################################################################
