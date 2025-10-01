@@ -516,6 +516,7 @@ ENDIF (PYTHONLIBS_FOUND AND ALPS_BUILD_PYTHON)
 # Boost Libraries
 set(BP_VER "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
 find_package(Boost COMPONENTS date_time chrono timer filesystem iostreams program_options regex serialization python${BP_VER} mpi REQUIRED NO_MODULE)
+set(ALPS_HAVE_BOOST_NUMPY true)
 
 # XML Path
 set(ALPS_XML_PATH "lib" CACHE STRING "Directory to install ALPS XML directory in")
