@@ -514,14 +514,8 @@ ELSE (PYTHONLIBS_FOUND AND ALPS_BUILD_PYTHON)
 ENDIF (PYTHONLIBS_FOUND AND ALPS_BUILD_PYTHON)
 
 # Boost Libraries
-find_package(BoostForALPS REQUIRED)
-if(Boost_ROOT_DIR)
-  message(STATUS "Adding Boost dir: ${Boost_ROOT_DIR} " )
-  include_directories(${Boost_ROOT_DIR})
-else(Boost_ROOT_DIR)
-  message(STATUS "Adding Boost dir: ${Boost_INCLUDE_DIR} " )
-  include_directories(${Boost_INCLUDE_DIR})
-endif(Boost_ROOT_DIR)
+set(BP_VER "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
+find_package(Boost COMPONENTS date_time chrono timer filesystem iostreams program_options regex serialization python${BP_VER} mpi REQUIRED NO_MODULE)
 
 # XML Path
 set(ALPS_XML_PATH "lib" CACHE STRING "Directory to install ALPS XML directory in")
