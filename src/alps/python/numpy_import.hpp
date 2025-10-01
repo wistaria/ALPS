@@ -39,6 +39,9 @@
 #endif
 
 // this should be set to the latest numpy version we have tested
+#ifdef NPY_NO_DEPRECATED_API
+    #undef NPY_NO_DEPRECATED_API
+#endif
 #define NPY_NO_DEPRECATED_API NPY_1_11_API_VERSION
 #include <numpy/arrayobject.h>
 
