@@ -389,7 +389,7 @@ endif(ALPS_ENABLE_OPENMP)
 # Lapack
 # For parallel MKL, this section should be executed after OpenMP check.
 if (NOT LAPACK_FOUND)
-  find_package(Lapack)
+  find_package(LAPACK)
 endif (NOT LAPACK_FOUND)
 if (LAPACK_FOUND)
   set(ALPS_HAVE_LAPACK 1)
@@ -515,8 +515,9 @@ ENDIF (PYTHONLIBS_FOUND AND ALPS_BUILD_PYTHON)
 
 # Boost Libraries
 set(BP_VER "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
-find_package(Boost COMPONENTS date_time chrono timer filesystem iostreams program_options regex serialization python${BP_VER} mpi REQUIRED NO_MODULE)
+find_package(Boost COMPONENTS date_time chrono timer filesystem iostreams program_options regex serialization thread python${BP_VER} numpy${BP_VER} mpi REQUIRED NO_MODULE)
 set(ALPS_HAVE_BOOST_NUMPY true)
+set(BOOST_DYNAMIC_LIBS Boost::headers Boost::date_time Boost::chrono Boost::timer Boost::filesystem Boost::iostreams Boost::program_options Boost::regex Boost::serialization Boost::thread Boost::python${BP_VER} Boost::numpy${BP_VER} Boost::mpi)
 
 # XML Path
 set(ALPS_XML_PATH "lib" CACHE STRING "Directory to install ALPS XML directory in")

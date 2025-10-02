@@ -136,7 +136,7 @@ if (Boost_FOUND)
       set(ALPS_LINK_LIBS ${ALPS_LINK_LIBS} ${MPI_EXTRA_LIBRARY})
     endif(MPI_EXTRA_LIBRARY)
   endif(MPI_FOUND)
-  target_link_libraries(alps PUBLIC ${ALPS_LINK_LIBS} Boost::boost Boost::date_time Boost::chrono Boost::timer Boost::filesystem Boost::iostreams Boost::program_options Boost::regex Boost::serialization Boost::python${BP_VER} Boost::mpi Python::Module)
+  target_link_libraries(alps PUBLIC ${ALPS_LINK_LIBS} ${BOOST_DYNAMIC_LIBS} Python::Module LAPACK::LAPACK)
 else (Boost_FOUND)
   # "boost" target available when Boost libraries are built from source
   target_link_libraries(alps ${ALPS_BOOST_LIBRARY_NAME} ${HDF5_LIBRARIES}) # ${SZIP_LIBRARIES} ${ZLIB_LIBRARIES})
