@@ -26,9 +26,8 @@ if(LAPACK_FOUND AND ALPS_BUILD_FORTRAN)
   set(SOURCES core/GlobalData.f90 core/LinearOps.f90 core/HamiOps.f90 
               core/StateOps.f90 core/LocalOps.f90 core/ObOps.f90
               core/PropOps.f90 core/Hdf5Interface.f90 tebd.f90)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LAPACK_LINKER_FLAGS}")
   add_executable(tebd ${SOURCES})
-  target_link_libraries(tebd ${HDF5_Fortran_LIBRARIES} ${HDF5_LIBRARIES} ${LAPACK_LIBRARY} ${BLAS_LIBRARY})
+  target_link_libraries(tebd ${HDF5_Fortran_LIBRARIES} ${HDF5_LIBRARIES} LAPACK::LAPACK)
   if(HDF5_DEFINITIONS)
     foreach (_hdf5_def ${HDF5_DEFINITIONS})
       string(REPLACE "-D" "" _escaped_def ${_hdf5_def})
